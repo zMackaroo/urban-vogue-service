@@ -26,7 +26,9 @@ application.get("/", (request: any, response: any) => {
   response.status(200).json({ message: "Hello Api" });
 });
 
-application.get("/api/v2/blogpost", Get.getAll);
+application.get("/api/v2/blogpost", (request: any, response: any) => {
+  response.status(200).json({ message: "Hello Api v2" });
+});
 
 application.listen(process.env.PORT, () => {
   console.log(`Development server is running on port ${process.env.PORT}`);
