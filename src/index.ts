@@ -25,3 +25,5 @@ application.listen(process.env.PORT, () => {
   console.log(`Development server is running on port ${process.env.PORT}`);
   MongoDB();
 });
+
+export default application;
