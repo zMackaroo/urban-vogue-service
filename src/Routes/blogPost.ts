@@ -1,9 +1,8 @@
 import { Router } from "express";
 import {
-  createBlogPost,
+  Create,
+  Get,
   deleteBlogPost,
-  getAllBlogPost,
-  getBlogPostById,
   updateBlogPost,
 } from "../Handlers/blogPost";
 import { validateAuth } from "../Middlewares/Auth/validateAuth";
@@ -14,19 +13,19 @@ const router = Router();
 // @Method: GET
 // @Protected: false
 // @Use: Get Users from 'tbl_blogpost'
-router.get("/blogpost", getAllBlogPost);
+router.get("/blogpost", Get.getAll);
 
 // @Route: /blogpost/:id
 // @Method: GET
 // @Protected: false
 // @Use: Get Blogpost by ID from 'tbl_blogpost'
-router.get("/blogpost/:id", getBlogPostById);
+router.get("/blogpost/:id", Get.getById);
 
 // @Route: /blogpost
 // @Method: POST
 // @Protected: true
 // @Use: Create Blogpost to 'tbl_blogpost'
-router.post("/blogpost", createBlogPost);
+router.post("/blogpost", Create.validate, Create.store);
 
 // @Route: /blogpost
 // @Method: PATCH

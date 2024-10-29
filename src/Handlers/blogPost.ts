@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { blogPostModel } from "../Schema/blogPosts.schema";
 
-export async function getAllBlogPost(
+async function getAllBlogPost(
   request: Request,
   response: Response,
   next: NextFunction
 ) {
-  const blogPosts = await blogPostModel.find();
+  const blogPosts = await blogPostModel.find().sort({ date: -1 });
   return response.status(200).send(blogPosts);
 }
 
-export async function getBlogPostById(
+async function getBlogPostById(
   request: Request,
   response: Response,
   next: NextFunction
@@ -18,18 +18,20 @@ export async function getBlogPostById(
   const { id } = request.params;
 
   if (id === "" || id === undefined) {
-    return response.status(400).send({ message: "invalid id" });
+    return response.status(400).send({ message: "Invalid id" });
   }
+
   const blogPosts = await blogPostModel.findOne({ _id: id });
   return response.status(200).send(blogPosts);
 }
 
-export async function createBlogPost(
+async function validateBlogPostRequest(
   request: Request,
   response: Response,
   next: NextFunction
 ) {
   const { body } = request;
+  // Create logic for validating token
 
   if (
     body?.title === "" ||
@@ -38,8 +40,32 @@ export async function createBlogPost(
     body?.date === "" ||
     body?.content === ""
   ) {
-    return response.json({ message: "Invalid payload check required fields" });
+    return response
+      .status(400)
+      .json({ message: "Invalid payload check required fields" });
   }
+
+  const isExisting = await blogPostModel.findOne({ title: body?.title });
+
+  if (isExisting) {
+    const updateExisting = await blogPostModel.updateOne(
+      { _id: isExisting._id },
+      { ...body }
+    );
+
+    if (updateExisting) {
+      return response.sendStatus(200);
+    } else {
+      return response.sendStatus(400);
+    }
+  }
+
+  next();
+}
+
+async function storeBlogPost(request: Request, response: Response) {
+  const { body } = request;
+
   await blogPostModel.create({
     title: body?.title,
     description: body?.description,
@@ -48,7 +74,7 @@ export async function createBlogPost(
     content: body?.content,
   });
 
-  return response.status(200).json({ message: "Posts Saved !" });
+  return response.sendStatus(200);
 }
 
 export function updateBlogPost(
@@ -66,3 +92,13 @@ export function deleteBlogPost(
 ) {
   response.send("Delete");
 }
+
+export const Create = {
+  validate: validateBlogPostRequest,
+  store: storeBlogPost,
+};
+
+export const Get = {
+  getAll: getAllBlogPost,
+  getById: getBlogPostById,
+};
