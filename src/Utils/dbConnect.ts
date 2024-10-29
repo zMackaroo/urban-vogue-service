@@ -4,7 +4,9 @@ let attempts = 1;
 
 export const MongoDB = () => {
   mongoose
-    .connect(`${process.env.MONGO_URL}`)
+    .connect(
+      "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
+    )
     .then(() => {
       console.log("Connected to MongoDB");
     })
