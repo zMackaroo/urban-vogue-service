@@ -7,18 +7,18 @@ const router = Router();
 // @Method: POST
 // @Protected: false
 // @Use: Get Users from 'tbl_users'
-router.post("/api/auth", getUser);
+router.post("/auth", getUser);
 
 // @Route: /auth/refresh
 // @Method: POST
 // @Protected: true
 // @Use: Refresh token
-router.post("/api/auth/refresh", refreshToken);
+router.post("/auth/refresh", refreshToken);
 
 // @Route: /auth/logout
 // @Method: POST
 // @Protected: true
 // @Use: Logout User
-router.post("/api/auth/logout", logoutUser);
+router.post("/auth/logout", logoutUser);
 
 export default router;

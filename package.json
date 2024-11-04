@@ -7,8 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc --build",
     "start": "node ./dist/index.js",
-    "start:dev": "nodemon ./src/index.ts",
-    "vercel-build": "echo hello"
+    "start:dev": "nodemon ./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -26,7 +25,10 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-session": "^1.18.1",
-    "mongoose": "^8.7.3"
+    "express-validator": "^7.2.0",
+    "helmet": "^8.0.0",
+    "mongoose": "^8.7.3",
+    "serverless-http": "^3.2.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.7",
