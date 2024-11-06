@@ -29,4 +29,6 @@ application.listen(process.env.PORT, () => {
   MongoDB();
 });
 
-module.exports = ServerlessHttp(application);
+ServerlessHttp(application);
+
+export default application;
