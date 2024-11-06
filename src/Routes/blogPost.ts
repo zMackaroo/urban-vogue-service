@@ -12,7 +12,6 @@ import {
   storeBlogPostPayload,
   updateOrDeleteBlogPostPayload,
 } from "../Schema/Validation/blogPostValidation.schema";
-import { validateAuth } from "../Middlewares/Auth/validateAuth";
 
 const router = Router();
 
