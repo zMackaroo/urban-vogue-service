@@ -7,9 +7,7 @@ export async function getAllPublishedBlogPost(
   request: Request,
   response: Response
 ) {
-  const blogPosts = await blogPostModel
-    .find({ isPublished: true })
-    .sort({ date: -1 });
+  const blogPosts = await blogPostModel.find().sort({ date: -1 });
   return response.status(200).send(blogPosts);
 }
 

@@ -5,7 +5,7 @@ let attempts = 1;
 export async function MongoDB() {
   await mongoose
     .connect(
-      "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
+      "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/?retryWrites=true&w=majority&appName=urbanvogue"
     )
     .then((res) => {
       console.log(res.connection.host);

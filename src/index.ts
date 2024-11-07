@@ -4,6 +4,9 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import routes from "./Routes";
+import { MongoDB } from "./Utils/dbConnect";
+
+MongoDB();
 
 declare global {
   namespace Express {
