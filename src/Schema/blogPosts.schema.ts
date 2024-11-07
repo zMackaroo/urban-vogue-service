@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 
+mongoose.connect(
+  "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
+);
+
 const blogPostSchema = new mongoose.Schema(
   {
     title: {

@@ -7,6 +7,9 @@ export async function MongoDB() {
     .connect(
       "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
     )
+    .then((res) => {
+      console.log(res.connection.host);
+    })
     .catch((err) => {
       if (attempts <= 3) {
         console.log(
