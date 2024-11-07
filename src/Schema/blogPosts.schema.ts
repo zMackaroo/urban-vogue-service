@@ -33,7 +33,7 @@ const blogPostSchema = new mongoose.Schema(
   },
   {
     capped: { size: 1024 },
-    bufferCommands: false,
+    bufferCommands: true,
     autoCreate: false,
   }
 );
