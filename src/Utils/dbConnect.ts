@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 
 let attempts = 1;
 
-export const MongoDB = () => {
-  mongoose
+export const MongoDB = async () => {
+  await mongoose
     .connect(
       "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
     )
