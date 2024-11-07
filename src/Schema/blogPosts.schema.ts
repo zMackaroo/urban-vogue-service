@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+setTimeout(async function () {
+  mongoose.connect(
+    "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
+  );
+}, 10000);
+
 const blogPostSchema = new mongoose.Schema({
   title: {
     type: String,
