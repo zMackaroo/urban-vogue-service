@@ -2,11 +2,13 @@ import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 
 import { blogPostModel } from "../Schema/blogPosts.schema";
+import { RunConnection } from "../Utils/dbConnect";
 
 export async function getAllPublishedBlogPost(
   request: Request,
   response: Response
 ) {
+  await RunConnection();
   const blogPosts = await blogPostModel
     .find({ isPublished: false })
     .sort({ date: -1 });
@@ -14,11 +16,13 @@ export async function getAllPublishedBlogPost(
 }
 
 export async function getAllBlogPosts(request: Request, response: Response) {
+  await RunConnection();
   const blogPosts = await blogPostModel.find().sort({ date: -1 });
   return response.status(200).send(blogPosts);
 }
 
 export async function getBlogPostById(request: Request, response: Response) {
+  await RunConnection();
   const { id } = request.params;
 
   if (id === "" || id === undefined) {
@@ -30,6 +34,7 @@ export async function getBlogPostById(request: Request, response: Response) {
 }
 
 export async function storeBlogPost(request: Request, response: Response) {
+  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -49,6 +54,7 @@ export async function storeBlogPost(request: Request, response: Response) {
 }
 
 export async function updateBlogPost(request: Request, response: Response) {
+  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -65,6 +71,7 @@ export async function updateBlogPost(request: Request, response: Response) {
 }
 
 export async function deleteBlogPost(request: Request, response: Response) {
+  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
