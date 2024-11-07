@@ -1,5 +1,4 @@
 import express from "express";
-import ServerlessHttp = require("serverless-http");
 import dotenv from "dotenv";
 import helmet from "helmet";
 import cors from "cors";
