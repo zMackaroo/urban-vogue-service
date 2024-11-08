@@ -9,7 +9,10 @@ import {
 import { RunConnection } from "../Utils/dbConnect";
 
 let refreshTokens: string[] = [];
-const mockUser = [{ id: 1, email: "admin@admin.com", password: "1234" }];
+const mockUser = [
+  { id: 1, email: "admin@urbanvogue.com", password: "A67JFolM" },
+  { id: 2, email: "writer@urbanvogue.com", password: "T35WisZY" },
+];
 
 export async function getUser(request: Request, response: Response) {
   await RunConnection();
