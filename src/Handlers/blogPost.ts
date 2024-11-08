@@ -11,7 +11,8 @@ export async function getAllPublishedBlogPost(
   await RunConnection();
   const blogPosts = await blogPostModel
     .find({ isPublished: false })
-    .sort({ date: -1 });
+    .sort({ date: -1 })
+    .limit(8);
   return response.status(200).send(blogPosts);
 }
 
