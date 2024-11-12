@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
 let attempts = 1;
 
@@ -26,7 +28,5 @@ export async function MongoDB() {
 }
 
 export async function RunConnection() {
-  await mongoose.connect(
-    "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog"
-  );
+  await mongoose.connect(`${process.env.MONGO_URL}`);
 }

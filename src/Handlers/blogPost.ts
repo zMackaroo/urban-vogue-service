@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 
 import { blogPostModel } from "../Schema/blogPosts.schema";
@@ -9,16 +10,27 @@ export async function getAllPublishedBlogPost(
   response: Response
 ) {
   await RunConnection();
+  const page = Number(request.query.page);
+  const limit = Math.max(0, Number(request.query.limit));
+
   const blogPosts = await blogPostModel
     .find({ isPublished: true })
     .sort({ date: -1 })
-    .limit(8);
+    .skip(limit * (page - 1))
+    .limit(limit);
   return response.status(200).send(blogPosts);
 }
 
 export async function getAllBlogPosts(request: Request, response: Response) {
   await RunConnection();
-  const blogPosts = await blogPostModel.find().sort({ date: -1 });
+  const page = Number(request.query.page);
+  const limit = Math.max(0, Number(request.query.limit));
+
+  const blogPosts = await blogPostModel
+    .find()
+    .sort({ date: -1 })
+    .skip(limit * (page - 1))
+    .limit(limit);
   return response.status(200).send(blogPosts);
 }
 
@@ -26,7 +38,7 @@ export async function getBlogPostById(request: Request, response: Response) {
   await RunConnection();
   const { id } = request.params;
 
-  if (id === "" || id === undefined) {
+  if (id === "" || id === undefined || !mongoose.isValidObjectId(id)) {
     return response.status(400).send({ message: "Invalid id" });
   }
 
@@ -47,6 +59,8 @@ export async function storeBlogPost(request: Request, response: Response) {
       imageLink: body?.imageLink,
       date: body?.date,
       content: body?.content,
+      isPublished: body?.isPublished,
+      isSaved: body?.isSaved,
     });
     return response.status(200).send(post);
   }
