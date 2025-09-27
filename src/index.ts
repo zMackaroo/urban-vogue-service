@@ -4,10 +4,6 @@ import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import routes from "./Routes";
-import { connectToDatabase } from "./Utils/dbConnect";
-
-// Initialize database connection
-connectToDatabase();
 
 declare global {
   namespace Express {

@@ -9,108 +9,140 @@ export async function getAllPublishedBlogPost(
   request: Request,
   response: Response
 ) {
-  await ensureConnection();
-  const page = Number(request.query.page);
-  const limit = Math.max(0, Number(request.query.limit));
+  try {
+    await ensureConnection();
+    const page = Number(request.query.page);
+    const limit = Math.max(0, Number(request.query.limit));
 
-  const totalCount = await blogPostModel.countDocuments({ isPublished: true });
-  const blogPosts = await blogPostModel
-    .find({ isPublished: true })
-    .sort({ date: -1 })
-    .skip(limit * (page - 1))
-    .limit(limit);
+    const totalCount = await blogPostModel.countDocuments({
+      isPublished: true,
+    });
+    const blogPosts = await blogPostModel
+      .find({ isPublished: true })
+      .sort({ date: -1 })
+      .skip(limit * (page - 1))
+      .limit(limit);
 
-  return response.status(200).send({
-    data: blogPosts,
-    totalCount,
-    currentPage: page,
-    totalPages: Math.ceil(totalCount / limit),
-    hasNextPage: page < Math.ceil(totalCount / limit),
-    hasPrevPage: page > 1,
-  });
+    return response.status(200).send({
+      data: blogPosts,
+      totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+      hasNextPage: page < Math.ceil(totalCount / limit),
+      hasPrevPage: page > 1,
+    });
+  } catch (error) {
+    console.error("Error in getAllPublishedBlogPost:", error);
+    return response.status(500).send({ error: "Internal server error" });
+  }
 }
 
 export async function getAllBlogPosts(request: Request, response: Response) {
-  await ensureConnection();
-  const page = Number(request.query.page);
-  const limit = Math.max(0, Number(request.query.limit));
+  try {
+    await ensureConnection();
+    const page = Number(request.query.page);
+    const limit = Math.max(0, Number(request.query.limit));
 
-  const totalCount = await blogPostModel.countDocuments();
-  const blogPosts = await blogPostModel
-    .find()
-    .sort({ date: -1 })
-    .skip(limit * (page - 1))
-    .limit(limit);
+    const totalCount = await blogPostModel.countDocuments();
+    const blogPosts = await blogPostModel
+      .find()
+      .sort({ date: -1 })
+      .skip(limit * (page - 1))
+      .limit(limit);
 
-  return response.status(200).send({
-    data: blogPosts,
-    totalCount,
-    currentPage: page,
-    totalPages: Math.ceil(totalCount / limit),
-    hasNextPage: page < Math.ceil(totalCount / limit),
-    hasPrevPage: page > 1,
-  });
+    return response.status(200).send({
+      data: blogPosts,
+      totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+      hasNextPage: page < Math.ceil(totalCount / limit),
+      hasPrevPage: page > 1,
+    });
+  } catch (error) {
+    console.error("Error in getAllBlogPosts:", error);
+    return response.status(500).send({ error: "Internal server error" });
+  }
 }
 
 export async function getBlogPostById(request: Request, response: Response) {
-  await ensureConnection();
-  const { id } = request.params;
+  try {
+    await ensureConnection();
+    const { id } = request.params;
 
-  if (id === "" || id === undefined || !mongoose.isValidObjectId(id)) {
-    return response.status(400).send({ message: "Invalid id" });
+    if (id === "" || id === undefined || !mongoose.isValidObjectId(id)) {
+      return response.status(400).send({ message: "Invalid id" });
+    }
+
+    const blogPosts = await blogPostModel.findOne({ _id: id });
+    return response.status(200).send(blogPosts);
+  } catch (error) {
+    console.error("Error in getBlogPostById:", error);
+    return response.status(500).send({ error: "Internal server error" });
   }
-
-  const blogPosts = await blogPostModel.findOne({ _id: id });
-  return response.status(200).send(blogPosts);
 }
 
 export async function storeBlogPost(request: Request, response: Response) {
-  await ensureConnection();
-  const result = validationResult(request);
+  try {
+    await ensureConnection();
+    const result = validationResult(request);
 
-  if (result.isEmpty()) {
-    const { body } = request;
+    if (result.isEmpty()) {
+      const { body } = request;
 
-    const post = await blogPostModel.create({
-      title: body?.title,
-      description: body?.description,
-      imageLink: body?.imageLink,
-      date: body?.date,
-      content: body?.content,
-      isPublished: body?.isPublished,
-      isSaved: body?.isSaved,
-    });
-    return response.status(200).send(post);
+      const post = await blogPostModel.create({
+        title: body?.title,
+        description: body?.description,
+        imageLink: body?.imageLink,
+        date: body?.date,
+        content: body?.content,
+        isPublished: body?.isPublished,
+        isSaved: body?.isSaved,
+      });
+      return response.status(200).send(post);
+    }
+
+    return response.status(400).send(result.array());
+  } catch (error) {
+    console.error("Error in storeBlogPost:", error);
+    return response.status(500).send({ error: "Internal server error" });
   }
-
-  return response.status(400).send(result.array());
 }
 
 export async function updateBlogPost(request: Request, response: Response) {
-  await ensureConnection();
-  const result = validationResult(request);
+  try {
+    await ensureConnection();
+    const result = validationResult(request);
 
-  if (result.isEmpty()) {
-    await blogPostModel.updateOne(
-      { _id: request.body.id },
-      { ...request.body }
-    );
+    if (result.isEmpty()) {
+      await blogPostModel.updateOne(
+        { _id: request.body.id },
+        { ...request.body }
+      );
 
-    const updated = await blogPostModel.findOne({ _id: request.body.id });
-    return response.status(200).send(updated);
+      const updated = await blogPostModel.findOne({ _id: request.body.id });
+      return response.status(200).send(updated);
+    }
+
+    return response.status(400).send({ message: "blogpost not found" });
+  } catch (error) {
+    console.error("Error in updateBlogPost:", error);
+    return response.status(500).send({ error: "Internal server error" });
   }
-
-  return response.status(400).send({ message: "blogpost not found" });
 }
 
 export async function deleteBlogPost(request: Request, response: Response) {
-  await ensureConnection();
-  const result = validationResult(request);
+  try {
+    await ensureConnection();
+    const result = validationResult(request);
 
-  if (result.isEmpty()) {
-    await blogPostModel.deleteOne({ _id: request.body.id });
-    return response.status(200).send({ message: "deleted" });
+    if (result.isEmpty()) {
+      await blogPostModel.deleteOne({ _id: request.body.id });
+      return response.status(200).send({ message: "deleted" });
+    }
+
+    return response.status(400).send({ message: "blogpost not found" });
+  } catch (error) {
+    console.error("Error in deleteBlogPost:", error);
+    return response.status(500).send({ error: "Internal server error" });
   }
-
-  return response.status(400).send({ message: "blogpost not found" });
 }

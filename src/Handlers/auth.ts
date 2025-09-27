@@ -15,59 +15,80 @@ const mockUser = [
 ];
 
 export async function getUser(request: Request, response: Response) {
-  await ensureConnection();
-  const {
-    body: { email, password },
-  } = request;
+  try {
+    await ensureConnection();
+    const {
+      body: { email, password },
+    } = request;
 
-  const findUser: any = mockUser.find((user) => user.email === email);
-  if (!findUser || findUser.password !== password)
-    return response.status(401).send({ message: "BAD CREDENTIALS" });
+    const findUser: any = mockUser.find((user) => user.email === email);
+    if (!findUser || findUser.password !== password)
+      return response.status(401).send({ message: "BAD CREDENTIALS" });
 
-  const accessToken = GenerateAccessToken(findUser);
-  const refreshToken = GenerateRefreshToken(findUser);
-  refreshTokens.push(refreshToken);
+    const accessToken = GenerateAccessToken(findUser);
+    const refreshToken = GenerateRefreshToken(findUser);
+    refreshTokens.push(refreshToken);
 
-  return response
-    .status(200)
-    .send({ email: findUser.email, accessToken, refreshToken });
+    return response
+      .status(200)
+      .send({ email: findUser.email, accessToken, refreshToken });
+  } catch (error) {
+    console.error("Error in getUser:", error);
+    return response.status(500).send({ error: "Internal server error" });
+  }
 }
 
 export async function refreshToken(request: Request, response: Response) {
-  await ensureConnection();
-  const refreshToken = request.body.token;
+  try {
+    await ensureConnection();
+    const refreshToken = request.body.token;
 
-  if (!refreshToken) return response.status(401).json("Un-authorized");
-  if (!refreshTokens.includes(refreshToken)) {
-    return response.status(403).json("Refresh token is not valid!");
-  }
-
-  jwt.verify(
-    refreshToken,
-    `${process.env.JWT_REFRESH_TOKEN_SECRET}`,
-    (err: any, user: any) => {
-      err && console.log(err);
-      refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-
-      const findUser: any = mockUser.find((data) => data.email === user.email);
-      const newAccessToken = GenerateAccessToken(findUser);
-      const newRefreshToken = GenerateRefreshToken(findUser);
-
-      refreshTokens.push(newRefreshToken);
-
-      response.status(200).json({
-        accessToken: newAccessToken,
-        refreshToken: newRefreshToken,
-      });
+    if (!refreshToken) return response.status(401).json("Un-authorized");
+    if (!refreshTokens.includes(refreshToken)) {
+      return response.status(403).json("Refresh token is not valid!");
     }
-  );
+
+    jwt.verify(
+      refreshToken,
+      `${process.env.JWT_REFRESH_TOKEN_SECRET}`,
+      (err: any, user: any) => {
+        if (err) {
+          console.error("JWT verification error:", err);
+          return response.status(401).json("Invalid token");
+        }
+
+        refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+
+        const findUser: any = mockUser.find(
+          (data) => data.email === user.email
+        );
+        const newAccessToken = GenerateAccessToken(findUser);
+        const newRefreshToken = GenerateRefreshToken(findUser);
+
+        refreshTokens.push(newRefreshToken);
+
+        response.status(200).json({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+        });
+      }
+    );
+  } catch (error) {
+    console.error("Error in refreshToken:", error);
+    return response.status(500).send({ error: "Internal server error" });
+  }
 }
 
 export async function logoutUser(request: Request, response: Response) {
-  await ensureConnection();
-  const refreshToken = request.body.token;
-  refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
-  response.status(200).json("You logged out successfully.");
+  try {
+    await ensureConnection();
+    const refreshToken = request.body.token;
+    refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
+    response.status(200).json("You logged out successfully.");
+  } catch (error) {
+    console.error("Error in logoutUser:", error);
+    return response.status(500).send({ error: "Internal server error" });
+  }
 }
 
 export function createUser(request: Request, response: Response) {}

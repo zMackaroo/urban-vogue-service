@@ -2,56 +2,65 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-let isConnected = false;
-let attempts = 1;
+// Global connection state for serverless
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 const MONGODB_URI =
   process.env.MONGO_URL ||
   "mongodb+srv://zmackaroo:Sep09051997!!@urbanvogue.erin2.mongodb.net/fad-blog";
 
+// Connection options optimized for serverless
+const connectionOptions = {
+  bufferCommands: false,
+  maxPoolSize: 1, // Reduced for serverless
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  connectTimeoutMS: 10000,
+  maxIdleTimeMS: 30000,
+};
+
 export async function connectToDatabase() {
-  if (isConnected) {
-    console.log("Already connected to MongoDB");
-    return;
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      ...connectionOptions,
+    };
+
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      console.log("Connected to MongoDB successfully");
+      return mongoose;
+    });
   }
 
   try {
-    await mongoose.connect(MONGODB_URI, {
-      bufferCommands: false,
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    });
-
-    isConnected = true;
-    console.log("Connected to MongoDB successfully");
-
-    mongoose.connection.on("error", (err) => {
-      console.error("MongoDB connection error:", err);
-      isConnected = false;
-    });
-
-    mongoose.connection.on("disconnected", () => {
-      console.log("MongoDB disconnected");
-      isConnected = false;
-    });
-  } catch (error) {
-    if (attempts <= 3) {
-      console.log(
-        `${attempts}/3 Failed to connect, attempting to re-connect...`
-      );
-      attempts++;
-      setTimeout(() => connectToDatabase(), 2000);
-    } else {
-      console.error(`Failed to establish connection with MongoDB: ${error}`);
-      throw error;
-    }
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error("MongoDB connection error:", e);
+    throw e;
   }
+
+  return cached.conn;
 }
 
 export async function ensureConnection() {
-  if (!isConnected) {
+  try {
     await connectToDatabase();
+    return true;
+  } catch (error) {
+    console.error("Failed to ensure MongoDB connection:", error);
+    return false;
   }
-  return isConnected;
+}
+
+// Global type declaration for TypeScript
+declare global {
+  var mongoose: any;
 }
