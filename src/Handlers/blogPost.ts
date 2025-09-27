@@ -3,11 +3,13 @@ import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 
 import { blogPostModel } from "../Schema/blogPosts.schema";
+import { ensureConnection } from "../Utils/dbConnect";
 
 export async function getAllPublishedBlogPost(
   request: Request,
   response: Response
 ) {
+  await ensureConnection();
   const page = Number(request.query.page);
   const limit = Math.max(0, Number(request.query.limit));
 
@@ -29,6 +31,7 @@ export async function getAllPublishedBlogPost(
 }
 
 export async function getAllBlogPosts(request: Request, response: Response) {
+  await ensureConnection();
   const page = Number(request.query.page);
   const limit = Math.max(0, Number(request.query.limit));
 
@@ -50,6 +53,7 @@ export async function getAllBlogPosts(request: Request, response: Response) {
 }
 
 export async function getBlogPostById(request: Request, response: Response) {
+  await ensureConnection();
   const { id } = request.params;
 
   if (id === "" || id === undefined || !mongoose.isValidObjectId(id)) {
@@ -61,6 +65,7 @@ export async function getBlogPostById(request: Request, response: Response) {
 }
 
 export async function storeBlogPost(request: Request, response: Response) {
+  await ensureConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -82,6 +87,7 @@ export async function storeBlogPost(request: Request, response: Response) {
 }
 
 export async function updateBlogPost(request: Request, response: Response) {
+  await ensureConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -98,6 +104,7 @@ export async function updateBlogPost(request: Request, response: Response) {
 }
 
 export async function deleteBlogPost(request: Request, response: Response) {
+  await ensureConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {

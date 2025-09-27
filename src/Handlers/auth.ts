@@ -6,7 +6,7 @@ import {
   GenerateRefreshToken,
 } from "../Utils/Helper/auth.helper";
 
-import { RunConnection } from "../Utils/dbConnect";
+import { ensureConnection } from "../Utils/dbConnect";
 
 let refreshTokens: string[] = [];
 const mockUser = [
@@ -15,7 +15,7 @@ const mockUser = [
 ];
 
 export async function getUser(request: Request, response: Response) {
-  await RunConnection();
+  await ensureConnection();
   const {
     body: { email, password },
   } = request;
@@ -34,7 +34,7 @@ export async function getUser(request: Request, response: Response) {
 }
 
 export async function refreshToken(request: Request, response: Response) {
-  await RunConnection();
+  await ensureConnection();
   const refreshToken = request.body.token;
 
   if (!refreshToken) return response.status(401).json("Un-authorized");
@@ -64,7 +64,7 @@ export async function refreshToken(request: Request, response: Response) {
 }
 
 export async function logoutUser(request: Request, response: Response) {
-  await RunConnection();
+  await ensureConnection();
   const refreshToken = request.body.token;
   refreshTokens = refreshTokens.filter((token) => token !== refreshToken);
   response.status(200).json("You logged out successfully.");
