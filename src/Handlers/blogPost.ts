@@ -3,39 +3,53 @@ import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 
 import { blogPostModel } from "../Schema/blogPosts.schema";
-import { RunConnection } from "../Utils/dbConnect";
 
 export async function getAllPublishedBlogPost(
   request: Request,
   response: Response
 ) {
-  await RunConnection();
   const page = Number(request.query.page);
   const limit = Math.max(0, Number(request.query.limit));
 
+  const totalCount = await blogPostModel.countDocuments({ isPublished: true });
   const blogPosts = await blogPostModel
     .find({ isPublished: true })
     .sort({ date: -1 })
     .skip(limit * (page - 1))
     .limit(limit);
-  return response.status(200).send(blogPosts);
+
+  return response.status(200).send({
+    data: blogPosts,
+    totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
+    hasNextPage: page < Math.ceil(totalCount / limit),
+    hasPrevPage: page > 1,
+  });
 }
 
 export async function getAllBlogPosts(request: Request, response: Response) {
-  await RunConnection();
   const page = Number(request.query.page);
   const limit = Math.max(0, Number(request.query.limit));
 
+  const totalCount = await blogPostModel.countDocuments();
   const blogPosts = await blogPostModel
     .find()
     .sort({ date: -1 })
     .skip(limit * (page - 1))
     .limit(limit);
-  return response.status(200).send(blogPosts);
+
+  return response.status(200).send({
+    data: blogPosts,
+    totalCount,
+    currentPage: page,
+    totalPages: Math.ceil(totalCount / limit),
+    hasNextPage: page < Math.ceil(totalCount / limit),
+    hasPrevPage: page > 1,
+  });
 }
 
 export async function getBlogPostById(request: Request, response: Response) {
-  await RunConnection();
   const { id } = request.params;
 
   if (id === "" || id === undefined || !mongoose.isValidObjectId(id)) {
@@ -47,7 +61,6 @@ export async function getBlogPostById(request: Request, response: Response) {
 }
 
 export async function storeBlogPost(request: Request, response: Response) {
-  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -69,7 +82,6 @@ export async function storeBlogPost(request: Request, response: Response) {
 }
 
 export async function updateBlogPost(request: Request, response: Response) {
-  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
@@ -86,7 +98,6 @@ export async function updateBlogPost(request: Request, response: Response) {
 }
 
 export async function deleteBlogPost(request: Request, response: Response) {
-  await RunConnection();
   const result = validationResult(request);
 
   if (result.isEmpty()) {
